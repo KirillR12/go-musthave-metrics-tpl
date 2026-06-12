@@ -19,12 +19,12 @@ func (m *MemStorage) UpdateCount(name string, value int64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	m.counters[name] = value
+	m.counters[name] += value
 }
 
 func (m *MemStorage) UpdateGauge(name string, value float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	m.gauges[name] += value
+	m.gauges[name] = value
 }

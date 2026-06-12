@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -43,6 +44,8 @@ func (h *MetricsHandler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	metricType := parts[2]
 	metricName := parts[3]
 	metricValue := parts[4]
+
+	fmt.Println("received:", metricType, metricName, metricValue)
 
 	if metricName == "" {
 		w.WriteHeader(http.StatusNotFound)
