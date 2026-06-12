@@ -18,7 +18,7 @@ func main() {
 	application := app.NewApp(cfg.Address, mux)
 
 	storage := repository.NewMemStorage()
-	metriceService := service.NewMetriceService(storage)
+	metriceService := service.NewMetricsService(storage)
 	metriceHandler := handler.NewMetricsHandler(metriceService)
 
 	metriceHandler.RegisterRoute(mux)
