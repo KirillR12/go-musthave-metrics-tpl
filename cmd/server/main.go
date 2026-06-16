@@ -1,10 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/KirillR12/go-musthave-metrics-tpl/internal/app"
-	"github.com/KirillR12/go-musthave-metrics-tpl/internal/config"
 	"github.com/KirillR12/go-musthave-metrics-tpl/internal/handler"
 	"github.com/KirillR12/go-musthave-metrics-tpl/internal/repository"
 	"github.com/KirillR12/go-musthave-metrics-tpl/internal/service"
@@ -12,10 +12,14 @@ import (
 )
 
 func main() {
-	e := echo.New()
-	cfg := config.NewConfig()
+	addr := flag.String("a", "localhost:8080", "address to server")
 
-	application := app.NewApp(cfg.Address, e)
+	flag.Parse()
+
+	e := echo.New()
+	// cfg := config.NewConfig()
+
+	application := app.NewApp(*addr, e)
 
 	storage := repository.NewMemStorage()
 	metriceService := service.NewMetricsService(storage)
