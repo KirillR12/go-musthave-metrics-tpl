@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"time"
 
 	"github.com/KirillR12/go-musthave-metrics-tpl/internal/agent"
@@ -8,11 +9,20 @@ import (
 )
 
 func main() {
+	addr := flag.String("a", "localhost:8080", "address to server")
+	r := flag.Int("r", 10, "report interval")
+	p := flag.Int("p", 2, "poll interval")
+
+	flag.Parse()
+
 	client := request.New(request.Config{
-		BaseURL: "http://localhost:8080",
+		BaseURL: "http://" + *addr,
 	})
 
-	a := agent.NewAgent(2*time.Second, 10*time.Second, client)
+	reportInterval := time.Duration(*r) * time.Second
+	pollInterval := time.Duration(*p) * time.Second
+
+	a := agent.NewAgent(pollInterval, reportInterval, client)
 
 	_ = a.Run()
 }
