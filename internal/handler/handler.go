@@ -12,6 +12,8 @@ import (
 type MetricsService interface {
 	UpdateGauge(name string, value float64)
 	UpdateCount(name string, value int64)
+	GetGaugeMetric(name string) (float64, error)
+	GetCountMetric(name string) (int64, error)
 }
 
 type MetricsHandler struct {
@@ -26,6 +28,37 @@ func NewMetricsHandler(service MetricsService) *MetricsHandler {
 
 func (h *MetricsHandler) RegisterRoute(e *echo.Echo) {
 	e.POST("/update/:type/:name/:value", h.UpdateMetric)
+	e.GET("/value/:type/:name", h.GetMetric)
+}
+
+func (h *MetricsHandler) GetMetric(c echo.Context) error {
+	metricType := c.Param("type")
+	metricName := c.Param("name")
+
+	if metricName == "" {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	switch metricType {
+	case models.Counter:
+		value, err := h.service.GetCountMetric(metricName)
+
+		if err != nil {
+			return c.NoContent(http.StatusNotFound)
+		}
+
+		return c.String(http.StatusOK, strconv.FormatInt(value, 10))
+	case models.Gauge:
+		value, err := h.service.GetGaugeMetric(metricName)
+
+		if err != nil {
+			return c.NoContent(http.StatusNotFound)
+		}
+
+		return c.String(http.StatusOK, strconv.FormatFloat(value, 'f', -1, 64))
+	default:
+		return c.NoContent(http.StatusBadRequest)
+	}
 }
 
 func (h *MetricsHandler) UpdateMetric(c echo.Context) error {
