@@ -19,10 +19,10 @@ func main() {
 		BaseURL: "http://" + *addr,
 	})
 
-	reportInterval := time.Duration(*r) * time.Second
-	pollInterval := time.Duration(*p) * time.Second
+	reportInt := time.Duration(*r) * time.Second
+	pollInt := time.Duration(*p) * time.Second
 
-	a := agent.NewAgent(pollInterval, reportInterval, client)
+	a := agent.NewAgent(pollInt, reportInt, client)
 
 	_ = a.Run()
 }
