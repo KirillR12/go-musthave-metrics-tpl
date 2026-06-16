@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/KirillR12/go-musthave-metrics-tpl/internal/app"
 	"github.com/KirillR12/go-musthave-metrics-tpl/internal/handler"
@@ -13,6 +14,10 @@ import (
 
 func main() {
 	addr := flag.String("a", "localhost:8080", "address to server")
+
+	if addrEnv := os.Getenv("ADDRESS"); addrEnv != "" {
+		*addr = addrEnv
+	}
 
 	flag.Parse()
 

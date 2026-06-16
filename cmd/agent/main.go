@@ -2,6 +2,9 @@ package main
 
 import (
 	"flag"
+	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/KirillR12/go-musthave-metrics-tpl/internal/agent"
@@ -18,6 +21,29 @@ func main() {
 	client := request.New(request.Config{
 		BaseURL: "http://" + *addr,
 	})
+
+	if addrEnv := os.Getenv("ADDRESS"); addrEnv != "" {
+		*addr = addrEnv
+	}
+
+	if reportEnv := os.Getenv("REPORT_INTERVAL"); reportEnv != "" {
+		value, err := strconv.Atoi(reportEnv)
+		if err != nil {
+			log.Fatalf("invalid POLL_INTERVAL: %v", err)
+		}
+
+		*r = value
+
+	}
+
+	if pollEnv := os.Getenv("POLL_INTERVAL"); pollEnv != "" {
+		value, err := strconv.Atoi(pollEnv)
+		if err != nil {
+			log.Fatalf("invalid POLL_INTERVAL: %v", err)
+		}
+
+		*p = value
+	}
 
 	reportInt := time.Duration(*r) * time.Second
 	pollInt := time.Duration(*p) * time.Second
