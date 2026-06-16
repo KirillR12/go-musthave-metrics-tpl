@@ -5,6 +5,7 @@ import (
 
 	"github.com/KirillR12/go-musthave-metrics-tpl/internal/agent/collector"
 	"github.com/KirillR12/go-musthave-metrics-tpl/internal/agent/sender"
+	"github.com/ghosind/go-request"
 )
 
 type Agent struct {
@@ -14,10 +15,10 @@ type Agent struct {
 	reportInterval time.Duration
 }
 
-func NewAgent(address string, pollInterval time.Duration, reportInterval time.Duration) *Agent {
+func NewAgent(pollInterval time.Duration, reportInterval time.Duration, client *request.Client) *Agent {
 	return &Agent{
 		storage:        collector.NewMetricsStorage(),
-		sender:         sender.NewSender(address),
+		sender:         sender.NewSender(client),
 		pollInterval:   pollInterval,
 		reportInterval: reportInterval,
 	}

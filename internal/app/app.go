@@ -2,23 +2,28 @@ package app
 
 import (
 	"fmt"
-	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 type App struct {
 	addr string
-	mux  *http.ServeMux
+	e    *echo.Echo
 }
 
-func NewApp(url string, mux *http.ServeMux) *App {
+func NewApp(url string, e *echo.Echo) *App {
 	return &App{
 		addr: url,
-		mux:  mux,
+		e:    e,
 	}
 }
 
 func (a *App) Start() error {
 	fmt.Println("server start on", a.addr)
 
-	return http.ListenAndServe(a.addr, a.mux)
+	if err := a.e.Start(a.addr); err != nil {
+		return fmt.Errorf("error start server")
+	}
+
+	return nil
 }

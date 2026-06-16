@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/labstack/echo/v4"
 )
 
 type mockMetricService struct {
@@ -23,14 +25,23 @@ func (m *mockMetricService) UpdateCount(name string, value int64) {
 	m.counterValue = value
 }
 
+func setupTestHandler(service *mockMetricService) *echo.Echo {
+	e := echo.New()
+
+	h := NewMetricsHandler(service)
+	h.RegisterRoute(e)
+
+	return e
+}
+
 func TestUpdateMetricsGaugeSuccess(t *testing.T) {
 	service := &mockMetricService{}
-	h := NewMetricsHandler(service)
+	e := setupTestHandler(service)
 
 	req := httptest.NewRequest(http.MethodPost, "/update/gauge/Alloc/123.45", nil)
 	w := httptest.NewRecorder()
 
-	h.UpdateMetric(w, req)
+	e.ServeHTTP(w, req)
 
 	res := w.Result()
 	defer res.Body.Close()
@@ -50,13 +61,13 @@ func TestUpdateMetricsGaugeSuccess(t *testing.T) {
 
 func TestUpdateMetricsCounterSuccess(t *testing.T) {
 	service := &mockMetricService{}
-	h := NewMetricsHandler(service)
+	e := setupTestHandler(service)
 
 	req := httptest.NewRequest(http.MethodPost, "/update/counter/PollCount/5", nil)
 
 	w := httptest.NewRecorder()
 
-	h.UpdateMetric(w, req)
+	e.ServeHTTP(w, req)
 
 	res := w.Result()
 	defer res.Body.Close()
@@ -76,12 +87,12 @@ func TestUpdateMetricsCounterSuccess(t *testing.T) {
 
 func TestUpdateMetricWrongMethod(t *testing.T) {
 	service := &mockMetricService{}
-	h := NewMetricsHandler(service)
+	e := setupTestHandler(service)
 
 	req := httptest.NewRequest(http.MethodGet, "/update/gauge/Alloc/123.45", nil)
 	w := httptest.NewRecorder()
 
-	h.UpdateMetric(w, req)
+	e.ServeHTTP(w, req)
 
 	res := w.Result()
 	defer res.Body.Close()
@@ -93,12 +104,12 @@ func TestUpdateMetricWrongMethod(t *testing.T) {
 
 func TestUpdateMetricWithoutName(t *testing.T) {
 	service := &mockMetricService{}
-	h := NewMetricsHandler(service)
+	e := setupTestHandler(service)
 
 	req := httptest.NewRequest(http.MethodPost, "/update/gauge//123.45", nil)
 	w := httptest.NewRecorder()
 
-	h.UpdateMetric(w, req)
+	e.ServeHTTP(w, req)
 
 	res := w.Result()
 	defer res.Body.Close()
@@ -110,12 +121,12 @@ func TestUpdateMetricWithoutName(t *testing.T) {
 
 func TestUpdateMetricWrongType(t *testing.T) {
 	service := &mockMetricService{}
-	h := NewMetricsHandler(service)
+	e := setupTestHandler(service)
 
 	req := httptest.NewRequest(http.MethodPost, "/update/wrong/Alloc/123.45", nil)
 	w := httptest.NewRecorder()
 
-	h.UpdateMetric(w, req)
+	e.ServeHTTP(w, req)
 
 	res := w.Result()
 	defer res.Body.Close()
@@ -127,12 +138,12 @@ func TestUpdateMetricWrongType(t *testing.T) {
 
 func TestUpdateMetricWrongGaugeValue(t *testing.T) {
 	service := &mockMetricService{}
-	h := NewMetricsHandler(service)
+	e := setupTestHandler(service)
 
 	req := httptest.NewRequest(http.MethodPost, "/update/gauge/Alloc/abc", nil)
 	w := httptest.NewRecorder()
 
-	h.UpdateMetric(w, req)
+	e.ServeHTTP(w, req)
 
 	res := w.Result()
 	defer res.Body.Close()
@@ -144,12 +155,12 @@ func TestUpdateMetricWrongGaugeValue(t *testing.T) {
 
 func TestUpdateMetricWrongCounterValue(t *testing.T) {
 	service := &mockMetricService{}
-	h := NewMetricsHandler(service)
+	e := setupTestHandler(service)
 
 	req := httptest.NewRequest(http.MethodPost, "/update/counter/PollCount/12.5", nil)
 	w := httptest.NewRecorder()
 
-	h.UpdateMetric(w, req)
+	e.ServeHTTP(w, req)
 
 	res := w.Result()
 	defer res.Body.Close()

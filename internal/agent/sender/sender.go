@@ -3,32 +3,29 @@ package sender
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/ghosind/go-request"
 )
 
 type Sender struct {
-	serverAddress string
-	client        *http.Client
+	client *request.Client
 }
 
-func NewSender(address string) *Sender {
+func NewSender(client *request.Client) *Sender {
 	return &Sender{
-		serverAddress: address,
-		client:        &http.Client{},
+		client: client,
 	}
 }
 
 func (s *Sender) SendGauge(name string, value float64) error {
-	url := fmt.Sprintf("%s/update/gauge/%s/%g", s.serverAddress, name, value)
+	url := fmt.Sprintf("/update/gauge/%s/%g", name, value)
 
-	req, err := http.NewRequest(http.MethodPost, url, nil)
-
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "text/plain")
-
-	resp, err := s.client.Do(req)
+	resp, err := s.client.Request(url, request.RequestOptions{
+		Headers: map[string][]string{
+			"Content-Type": {"text/plain"},
+		},
+		Method: http.MethodPost,
+	})
 
 	if err != nil {
 		return err
@@ -44,17 +41,14 @@ func (s *Sender) SendGauge(name string, value float64) error {
 }
 
 func (s *Sender) SendCounter(name string, value int64) error {
-	url := fmt.Sprintf("%s/update/counter/%s/%d", s.serverAddress, name, value)
+	url := fmt.Sprintf("/update/counter/%s/%d", name, value)
 
-	req, err := http.NewRequest(http.MethodPost, url, nil)
-
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "text/plain")
-
-	resp, err := s.client.Do(req)
+	resp, err := s.client.Request(url, request.RequestOptions{
+		Headers: map[string][]string{
+			"Content-Type": {"text/plain"},
+		},
+		Method: http.MethodPost,
+	})
 
 	if err != nil {
 		return err

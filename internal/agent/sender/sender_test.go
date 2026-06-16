@@ -4,7 +4,15 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/ghosind/go-request"
 )
+
+func setupNewClient(url string) *request.Client {
+	return request.New(request.Config{
+		BaseURL: url,
+	})
+}
 
 func TestSendGauge(t *testing.T) {
 	var gotMethod string
@@ -20,7 +28,8 @@ func TestSendGauge(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sender := NewSender(server.URL)
+	c := setupNewClient(server.URL)
+	sender := NewSender(c)
 
 	err := sender.SendGauge("Alloc", 123.45)
 	if err != nil {
@@ -54,7 +63,8 @@ func TestSendCounter(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sender := NewSender(server.URL)
+	c := setupNewClient(server.URL)
+	sender := NewSender(c)
 
 	err := sender.SendCounter("PollCount", 5)
 	if err != nil {
@@ -80,7 +90,9 @@ func TestSendGaugeReturnsErrorOnBadStatus(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sender := NewSender(server.URL)
+	c := setupNewClient(server.URL)
+
+	sender := NewSender(c)
 
 	err := sender.SendGauge("Alloc", 123.45)
 	if err == nil {
