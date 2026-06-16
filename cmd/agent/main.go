@@ -18,10 +18,6 @@ func main() {
 
 	flag.Parse()
 
-	client := request.New(request.Config{
-		BaseURL: "http://" + *addr,
-	})
-
 	if addrEnv := os.Getenv("ADDRESS"); addrEnv != "" {
 		*addr = addrEnv
 	}
@@ -33,7 +29,6 @@ func main() {
 		}
 
 		*r = value
-
 	}
 
 	if pollEnv := os.Getenv("POLL_INTERVAL"); pollEnv != "" {
@@ -44,6 +39,10 @@ func main() {
 
 		*p = value
 	}
+
+	client := request.New(request.Config{
+		BaseURL: "http://" + *addr,
+	})
 
 	reportInt := time.Duration(*r) * time.Second
 	pollInt := time.Duration(*p) * time.Second
